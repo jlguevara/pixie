@@ -1,0 +1,7 @@
+Pixie API
+
+Currently supports: 
+GET /users
+GET /users/<id>
+GET /posts
+
