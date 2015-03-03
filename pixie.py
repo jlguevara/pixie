@@ -101,7 +101,8 @@ def posts():
         try:
             g.cur.execute(sql)
         except pymysql.err.OperationalError:
-            app.logger.warning('Lost connection to db in /posts, reconnecting...')
+            app.logger.warning(
+                    'Lost connection to db in /posts, reconnecting...')
             if g.cur.connection.ping(True):
                 g.cur.execute(sql)
             else:
@@ -109,7 +110,7 @@ def posts():
 
         results = g.cur.fetchall()
         posts = [dict(id=row[0], start=row[1], end=row[2], day=str(row[3]), 
-            driver_enum=row[4], time=row[5], user_id=row[6]) 
+            driverEnum=row[4], time=row[5], userId=row[6]) 
             for row in results]
 
         return jsonify({'posts': posts});
@@ -118,7 +119,24 @@ def posts():
         return create_post()
 
 def create_post():
-    pass
+    start = request.form['start']
+    end = request.form['end']
+    day = request.form['day']
+    driver_enum = request.form['driverEnum']
+    time = request.form['time']
+    user_id = row['userId']
+
+    sql = 'insert into posts (start, end, day, driver_enum, time, user_id) \
+            values (%s, %s, %s, %s, %s, %s)'
+    try:
+        g.cur.execute(sql, (start, end, day, driver_enum, time, user_id))
+    except pymysql.err.OperationalError:
+        app.logger.warning(
+                'Lost connection to db in create_post, reconnecting...')
+        if g.cur.connection.pint(True):
+            g.cur.execute(sql, (start, end, day, driver_enum, time, user_id))
+        else:
+            return 'database error'
 
 if __name__ == '__main__':
     app.run(debug=False)
