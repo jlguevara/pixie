@@ -138,6 +138,26 @@ def create_post():
         else:
             return 'database error'
 
+    post_id = cur.lastrowid
+    sql = "select * from posts where id = %s"
+    try:
+        g.cur.execute(sql, (post_id))
+    except pymysql.err.OperationalError:
+        app.logger.warning(
+                'Lost connection to db in /posts, reconnecting...')
+        if g.cur.connection.ping(True):
+            g.cur.execute(sql, (post_id))
+        else:
+            return 'database error'
+
+    cur.commit()
+
+    results = g.cur.fetchone()
+    return jsonify({'id': row[0], 'start': row[1], 'end': row[2], 
+        'day': str(row[3]), 'driverEnum': row[4], 'time': row[5], 
+        'userId': row[6]}) 
+
+
 if __name__ == '__main__':
     app.run(debug=False)
 
