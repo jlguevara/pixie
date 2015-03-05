@@ -3,7 +3,7 @@ from flask import Flask, g, render_template, url_for, request, Response, jsonify
 
 app = Flask(__name__)
 
-conn = pymysql.connect(host='aa1pxnr8mnofxjk.cshd2j4rs3fz.us-west-1.rds.amazonaws.com',
+conn = pymysql.connect(host='rebootinstance.cshd2j4rs3fz.us-west-1.rds.amazonaws.com',
         port=3306,
         user='admin',
         passwd='pixie409',
