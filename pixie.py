@@ -134,10 +134,12 @@ def create_post():
     except pymysql.err.OperationalError:
         app.logger.warning(
                 'Lost connection to db in create_post, reconnecting...')
-        if g.cur.connection.pint(True):
+        if g.cur.connection.ping(True):
             g.cur.execute(sql, (start, end, day, driver_enum, time, user_id))
         else:
             return 'database error'
+
+    g.cur.connection.commit()
 
     post_id = g.cur.lastrowid
     sql = "select * from posts where id = %s"
@@ -156,7 +158,6 @@ def create_post():
         'day': str(row[3]), 'driverEnum': row[4], 'time': row[5], 
         'userId': row[6]}) 
 
-    g.cur.connection.commit()
 
 
 if __name__ == '__main__':
