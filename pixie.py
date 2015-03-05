@@ -3,7 +3,7 @@ from flask import Flask, g, render_template, url_for, request, Response, jsonify
 
 app = Flask(__name__)
 
-conn = pymysql.connect(host='aa1pxnr8mnofxjk.cshd2j4rs3fz.us-west-1.rds.amazonaws.com',
+conn = pymysql.connect(host='rebootinstance.cshd2j4rs3fz.us-west-1.rds.amazonaws.com',
         port=3306,
         user='admin',
         passwd='pixie409',
@@ -119,12 +119,13 @@ def posts():
         return create_post()
 
 def create_post():
-    start = request.form['start']
-    end = request.form['end']
-    day = request.form['day']
-    driver_enum = request.form['driverEnum']
-    time = request.form['time']
-    user_id = row['userId']
+    start = request.get_json().get('start', '')
+    end = request.get_json().get('end', '')
+    day = request.get_json().get('day', '')
+    driver_enum = request.get_json().get('driverEnum', '')
+    time = request.get_json().get('time', '')
+    user_id = request.get_json().get('userId','')
+
 
     sql = 'insert into posts (start, end, day, driver_enum, time, user_id) \
             values (%s, %s, %s, %s, %s, %s)'
@@ -138,7 +139,7 @@ def create_post():
         else:
             return 'database error'
 
-    post_id = cur.lastrowid
+    post_id = g.cur.lastrowid
     sql = "select * from posts where id = %s"
     try:
         g.cur.execute(sql, (post_id))
@@ -150,12 +151,12 @@ def create_post():
         else:
             return 'database error'
 
-    cur.commit()
-
-    results = g.cur.fetchone()
+    row = g.cur.fetchone()
     return jsonify({'id': row[0], 'start': row[1], 'end': row[2], 
         'day': str(row[3]), 'driverEnum': row[4], 'time': row[5], 
         'userId': row[6]}) 
+
+    g.cur.connection.commit()
 
 
 if __name__ == '__main__':
