@@ -19,22 +19,14 @@ def teardown_request(exception):
     if cur is not None:
         cur.close()
 
-@app.route('/', methods=['GET', 'POST'])
-def show_posts():
-    if request.method == 'POST':
-        source = request.form['source']
-        destination = request.form['destination']
-        sql = "insert into posts (source, destination) values (%s, %s)"
-        g.cur.execute(sql, (source, destination))
-        g.cur.connection.commit()
-
-
-    g.cur.execute("select * from posts")
-
-    app.logger.error("after select")
-    posts = [dict(source=row[0], destination=row[1])
-            for row in g.cur.fetchall()]
-    return render_template('show_posts.html', posts=posts)
+@app.route('/')
+def index():
+    body = """
+    Welcome to the Pixie API.  We currently support 
+    GET /users, GET /users/id,
+    GET /posts, and POST /posts.
+    """
+    return body
 
 @app.errorhandler(404)
 def not_found(error=None):
