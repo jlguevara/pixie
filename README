@@ -1,7 +1,11 @@
 Pixie API
 
+currently parked at http://ec2-54-148-100-12.us-west-2.compute.amazonaws.com/pixie/
+
 Currently supports: 
 GET /users
 GET /users/<id>
+
 GET /posts
+POST /posts
 
