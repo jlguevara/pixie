@@ -3,7 +3,8 @@ from flask import Flask, g, render_template, url_for, request, Response, jsonify
 
 app = Flask(__name__)
 
-conn = pymysql.connect(host='rebootinstance.cshd2j4rs3fz.us-west-1.rds.amazonaws.com',
+conn = pymysql.connect(
+        host='rebootinstance.cshd2j4rs3fz.us-west-1.rds.amazonaws.com',
         port=3306,
         user='admin',
         passwd='pixie409',
@@ -43,22 +44,47 @@ def not_found(error=None):
 @app.route('/users', methods = ['GET', 'POST'])
 def users():
     if request.method == 'GET':
-        sql = "select id, name, age, email, gender, bio from users"
-        try:
-            g.cur.execute(sql)
-        except pymysql.err.OperationalError:
-            app.logger.warning('Lost connection to db in /users, reconnecting...')
-            if g.cur.connection.ping(True):
-                g.cur.execute(sql)
+        if request.args:
+            email = request.args.get('email')
+            pw = request.args.get('password')
+            if email and pw:
+                sql = "select id from users where email = %s and password = %s"
+                try:
+                    g.cur.execute(sql, (email, pw))
+                except pymysql.err.OperationalError:
+                    app.logger.warning('Lost connection')
+                    if g.cur.connection.pint(True):
+                        g.cur.execute(sql)
+                    else:
+                        return 'database error'
+
+                results = g.cur.fetchone()
+                if results:
+                    return jsonify({'id': results[0]})
+                else:
+                    return not_found()
+
             else:
-                return 'database error'
+                return not_found()  
 
-        results = g.cur.fetchall()
-        users = [dict(id=row[0], name=row[1], age=row[2], email=row[3], 
-            gender=row[4], bio=row[5]) 
-            for row in results]
+        else:
+            sql = "select id, name, age, email, gender, bio from users"
+            try:
+                g.cur.execute(sql)
+            except pymysql.err.OperationalError:
+                app.logger.warning(
+                        'Lost connection to db in /users, reconnecting...')
+                if g.cur.connection.ping(True):
+                    g.cur.execute(sql)
+                else:
+                    return 'database error'
 
-        return jsonify({'users': users});
+            results = g.cur.fetchall()
+            users = [dict(id=row[0], name=row[1], age=row[2], email=row[3], 
+                gender=row[4], bio=row[5]) 
+                for row in results]
+
+            return jsonify({'users': users});
 
     else:
         return create_user()
