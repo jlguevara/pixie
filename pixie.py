@@ -90,7 +90,41 @@ def users():
         return create_user()
 
 def create_user():
-    pass
+    name = request.get_json().get('name', '')
+    email = request.get_json().get('email', '')
+    password = request.get_json().get('password', '')
+
+    if not name or not email or not password:
+        return not_found()
+
+    sql = 'insert into users (name, email, password) values (%s, %s, %s)'
+
+    try:
+        app.logger.warning("%s %s %s" % (name, email, password))
+        g.cur.execute(sql, (name, email, password))
+    except pymysql.err.OperationalError:
+        app.logger.warning('Lost connection')
+        if g.cur.connection.ping(True):
+            g.cur.execute(sql, (name, email, password))
+        else:
+            return 'database error'
+
+    g.cur.connection.commit()
+
+    userId = g.cur.lastrowid
+    sql = "select id, name, email from users where id = %s"
+    try:
+        g.cur.execute(sql, (userId))
+    except pymysql.err.OperationalError:
+        app.logger.warning('Lost connection')
+        if g.cur.connection.ping(True):
+            g.cur.execute(sql, (userId))
+        else:
+            return 'database error'
+
+    row = g.cur.fetchone()
+    return jsonify({'id': row[0], 'name': row[1], 'email': row[2]})
+
 
 @app.route('/users/<userid>')
 def user(userid):
