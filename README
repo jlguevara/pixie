@@ -4,7 +4,12 @@ currently parked at http://ec2-54-148-100-12.us-west-2.compute.amazonaws.com/pix
 
 Currently supports: 
 GET /users
+POST /users 
+  {name, email, password} and returns {id, name, email} if successful
+  
 GET /users?email=usersemail&password=userspw
+  returns {id} if successful
+  
 GET /users/<id>
 
 GET /posts
