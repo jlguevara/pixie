@@ -68,7 +68,7 @@ def users():
                 return not_found()  
 
         else:
-            sql = "select id, name, age, email, gender, bio from users"
+            sql = "select id, name, age, email, gender, bio , photoURL from users"
             try:
                 g.cur.execute(sql)
             except pymysql.err.OperationalError:
@@ -81,7 +81,7 @@ def users():
 
             results = g.cur.fetchall()
             users = [dict(id=row[0], name=row[1], age=row[2], email=row[3], 
-                gender=row[4], bio=row[5]) 
+                gender=row[4], bio=row[5], photURL=row[6]) 
                 for row in results]
 
             return jsonify({'users': users});
@@ -93,11 +93,12 @@ def create_user():
     name = request.get_json().get('name', '')
     email = request.get_json().get('email', '')
     password = request.get_json().get('password', '')
+    photoURL = request.get_json().get('photoURL', '')
 
     if not name or not email or not password:
         return not_found()
 
-    sql = 'insert into users (name, email, password) values (%s, %s, %s)'
+    sql = 'insert into users (name, email, password, photoURL) values (%s, %s, %s, %s)'
 
     try:
         app.logger.warning("%s %s %s" % (name, email, password))
@@ -105,14 +106,14 @@ def create_user():
     except pymysql.err.OperationalError:
         app.logger.warning('Lost connection')
         if g.cur.connection.ping(True):
-            g.cur.execute(sql, (name, email, password))
+            g.cur.execute(sql, (name, email, password, photoURL))
         else:
             return 'database error'
 
     g.cur.connection.commit()
 
     userId = g.cur.lastrowid
-    sql = "select id, name, email from users where id = %s"
+    sql = "select id, name, email, photURL from users where id = %s"
     try:
         g.cur.execute(sql, (userId))
     except pymysql.err.OperationalError:
@@ -123,12 +124,13 @@ def create_user():
             return 'database error'
 
     row = g.cur.fetchone()
-    return jsonify({'id': row[0], 'name': row[1], 'email': row[2]})
+    return jsonify({'id': row[0], 'name': row[1], 'email': row[2], 
+        'photoURL': row[3]})
 
 
 @app.route('/users/<userid>')
 def user(userid):
-   sql = "select id, name, age, email, gender, bio from users where id = %s" 
+   sql = "select id, name, age, email, gender, bio, photoURL from users where id = %s" 
    try:
         g.cur.execute(sql, (userid)) 
    except:
@@ -141,7 +143,8 @@ def user(userid):
    row = g.cur.fetchone()
    if row:
        return jsonify({'id': row[0], 'name': row[1], 'age': row[2], 
-           'email': row[3], 'gender': row[4], 'bio': row[5]}) 
+           'email': row[3], 'gender': row[4], 'bio': row[5], 
+           'photoURL': row[6]}) 
    else:
        return not_found()
 	
