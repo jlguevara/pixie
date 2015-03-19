@@ -4,14 +4,27 @@ currently parked at http://ec2-54-148-100-12.us-west-2.compute.amazonaws.com/pix
 
 Currently supports: 
 GET /users
+  This will return a list of user objects.  Each user will contain the following attributes
+  age (int or null), bio (string or null), email (string), gender ('M', 'F' or null), id (int), name (string), photoURL (string)
+  
 POST /users 
-  {name, email, password} and returns {id, name, email} if successful
+  Given an object with the attributes {name, email, password, photoURL, bio}, it creates a new user.  If successful,
+  it returns the user's info, otherwise it return an error. 
   
 GET /users?email=usersemail&password=userspw
-  returns {id} if successful
+  Given an email and a password, it checks if the user exists.  If the user exists, it returns and object with 
+  the user's id as the only element, otherwise it returns an error.
   
 GET /users/<id>
+  This will return an individual user with the following attributes
+  age (int or null), bio (string or null), email (string), gender ('M', 'F' or null), id (int), name (string), photoURL (string)
 
 GET /posts
+  This will return a list of posts.  Each post will contain the following attributes
+  day (the day of the ride), driverEnum (whether the poster is a driver or rider), end (the destination), id (id of post),
+  start (the source), time (the time of the ride), userId (the id of the poster).
+
 POST /posts
+  Given an object with the attributes {day, driverEnum, end, userId, start, time} it creates a new user.  If successful,
+  it returns the posts info, otherwise it returns an error.
 
