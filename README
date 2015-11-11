@@ -1,7 +1,5 @@
 Pixie API
 
-currently parked at http://ec2-54-148-100-12.us-west-2.compute.amazonaws.com/pixie/
-
 Currently supports: 
 GET /users
   This will return a list of user objects.  Each user will contain the following attributes
